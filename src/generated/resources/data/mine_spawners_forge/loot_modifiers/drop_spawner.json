@@ -1,0 +1,54 @@
+{
+  "type": "mine_spawners_forge:loot_pool",
+  "configField": "Mine Spawners Config.dropChance",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "conditions": [
+            {
+              "block": "minecraft:spawner",
+              "condition": "minecraft:block_state_property"
+            },
+            {
+              "condition": "minecraft:match_tool",
+              "predicate": {
+                "enchantments": [
+                  {
+                    "enchantment": "minecraft:silk_touch",
+                    "levels": {
+                      "min": 1
+                    }
+                  }
+                ],
+                "tag": "minecraft:pickaxes"
+              }
+            }
+          ],
+          "functions": [
+            {
+              "function": "minecraft:copy_nbt",
+              "ops": [
+                {
+                  "op": "merge",
+                  "source": "{}",
+                  "target": "BlockEntityTag"
+                }
+              ],
+              "source": "block_entity"
+            },
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{BlockEntityTag:{Delay:-1s,x:0,y:0,z:0}}"
+            }
+          ],
+          "name": "minecraft:spawner"
+        }
+      ],
+      "name": "drop_spawner",
+      "rolls": 1.0
+    }
+  ]
+}
