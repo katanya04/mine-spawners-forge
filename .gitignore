@@ -120,14 +120,8 @@ gradlew.bat
 gradlew
 gradle/wrapper/gradle-wrapper.properties
 gradle/wrapper/gradle-wrapper.jar
-build.gradle
 *.gz
 src/generated/resources/.cache/*
-settings.gradle
 run-data/config/fml.toml
 gradle/wrapper/gradle-wrapper.properties
 gradle/wrapper/gradle-wrapper.properties
-gradle.properties
-src/main/resources/META-INF/mods.toml
-*.gradle
-*.properties
