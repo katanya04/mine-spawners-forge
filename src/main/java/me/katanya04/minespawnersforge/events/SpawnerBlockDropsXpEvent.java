@@ -25,7 +25,7 @@ public class SpawnerBlockDropsXpEvent {
         if (player == null)
             return;
         ItemStack tool = player.getMainHandItem();
-        if (tool.isCorrectToolForDrops(block) && tool.getAllEnchantments().containsKey(Enchantments.SILK_TOUCH))
+        if (tool.isCorrectToolForDrops(block) && tool.getEnchantments().keySet().contains(Enchantments.SILK_TOUCH.getOrThrow(event.getPlayer().level())))
             event.setExpToDrop(0);
     }
 }

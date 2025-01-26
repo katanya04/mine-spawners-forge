@@ -2,10 +2,9 @@
   "required": true,
   "minVersion": "0.8",
   "package": "me.katanya04.minespawnersforge.mixins",
-  "compatibilityLevel": "JAVA_8",
+  "compatibilityLevel": "JAVA_21",
   "refmap": "mine_spawners_forge.refmap.json",
   "mixins": [
-    "ReadLootPoolNameFix",
     "SpawnerBlockPermissionsMixin"
   ],
   "injectors": {

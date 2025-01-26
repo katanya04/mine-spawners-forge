@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
  * gets thrown when there is no {@link net.minecraftforge.common.ForgeHooks.LootTableContext} available,
  * as it is in our case. See <a href="https://github.com/MinecraftForge/MinecraftForge/issues/9114">Forge Issue 9114</a>).
  */
-@Mixin(LootPool.Serializer.class)
+/*@Mixin(LootPool.Serializer.class)
 public class ReadLootPoolNameFix {
     @Unique
     private static int mine_spawners_forge$globalPoolCount = 0;
@@ -25,4 +25,4 @@ public class ReadLootPoolNameFix {
         else
             return "pool" + mine_spawners_forge$globalPoolCount++;
     }
-}
+}*/

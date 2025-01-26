@@ -4,9 +4,8 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.ComponentContents;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.contents.LiteralContents;
+import net.minecraft.network.chat.contents.PlainTextContents;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -22,19 +21,19 @@ import org.jetbrains.annotations.NotNull;
 public class ConfigScreen extends Screen {
     //private final Screen previousScreen;
     protected ConfigScreen() {
-        super(MutableComponent.create(LiteralContents.EMPTY));
+        super(MutableComponent.create(PlainTextContents.LiteralContents.EMPTY));
         //this.previousScreen = previousScreen;
     }
 
     @Override
     protected void init() {
-        StringWidget titleDrop = new StringWidget(MutableComponent.create(new LiteralContents("Drop chance: ")), this.minecraft.fontFilterFishy);
+        StringWidget titleDrop = new StringWidget(MutableComponent.create(new PlainTextContents.LiteralContents("Drop chance: ")), this.minecraft.fontFilterFishy);
         titleDrop.setX(15);
         titleDrop.setY(15);
         addRenderableWidget(titleDrop);
 
-        ForgeSlider sliderDrop = new ForgeSlider(titleDrop.getX() + titleDrop.getWidth() + 15, 15, 100, 20, MutableComponent.create(ComponentContents.EMPTY),
-                MutableComponent.create(new LiteralContents("% chance")), 0.0, 100.0, Config.DROP_CHANCE.get(), 0.1, 0, true) {
+        ForgeSlider sliderDrop = new ForgeSlider(titleDrop.getX() + titleDrop.getWidth() + 15, 15, 100, 20, MutableComponent.create(new PlainTextContents.LiteralContents("")),
+                MutableComponent.create(new PlainTextContents.LiteralContents("% chance")), 0.0, 100.0, Config.DROP_CHANCE.get(), 0.1, 0, true) {
             @Override
             public void setValue(double value) {
                 value = Mth.clamp(value, 0.0, 100.0);
@@ -50,7 +49,7 @@ public class ConfigScreen extends Screen {
 
             @Override
             protected @NotNull MutableComponent createNarrationMessage() {
-                return MutableComponent.create(new LiteralContents("Drop chance: " + value * 100 + "% chance"));
+                return MutableComponent.create(new PlainTextContents.LiteralContents("Drop chance: " + value * 100 + "% chance"));
             }
 
 
@@ -59,7 +58,7 @@ public class ConfigScreen extends Screen {
 
         titleDrop.setY(titleDrop.getY() + sliderDrop.getY() / 2);
 
-        Button returnButton = Button.builder(MutableComponent.create(new LiteralContents("Return")), (button) -> this.onClose()).build();
+        Button returnButton = Button.builder(MutableComponent.create(new PlainTextContents.LiteralContents("Return")), (button) -> this.onClose()).build();
         returnButton.setX(this.width / 2 - returnButton.getWidth() / 2);
         returnButton.setY(this.height - returnButton.getHeight() - 15);
         addRenderableWidget(returnButton);
@@ -69,7 +68,7 @@ public class ConfigScreen extends Screen {
 
     @Override
     public void render(@NotNull GuiGraphics guiGraphics, int p_281550_, int p_282878_, float p_282465_) {
-        renderDirtBackground(guiGraphics);
+        this.renderPanorama(guiGraphics, p_282465_);
         super.render(guiGraphics, p_281550_, p_282878_, p_282465_);
     }
 

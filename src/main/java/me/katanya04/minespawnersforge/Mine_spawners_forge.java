@@ -19,9 +19,9 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 public class Mine_spawners_forge {
     public static final String MOD_ID = "mine_spawners_forge";
 
-    public Mine_spawners_forge() {
-        ModLootModifiers.register(FMLJavaModLoadingContext.get().getModEventBus());
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SPEC, "mine_spawners_forge-config.toml");
+    public Mine_spawners_forge(FMLJavaModLoadingContext context) {
+        ModLootModifiers.register(context.getModEventBus());
+        context.registerConfig(ModConfig.Type.COMMON, Config.SPEC, "mine_spawners_forge-config.toml");
     }
 
 

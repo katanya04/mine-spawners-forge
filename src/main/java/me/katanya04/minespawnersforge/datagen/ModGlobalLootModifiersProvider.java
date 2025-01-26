@@ -2,10 +2,13 @@ package me.katanya04.minespawnersforge.datagen;
 
 import me.katanya04.minespawnersforge.config.Config;
 import me.katanya04.minespawnersforge.Mine_spawners_forge;
+import me.katanya04.minespawnersforge.loot.CopyDataComponentFunction;
 import me.katanya04.minespawnersforge.loot.LootPoolWithConfigChanceModifier;
-import net.minecraft.advancements.critereon.EnchantmentPredicate;
-import net.minecraft.advancements.critereon.ItemPredicate;
-import net.minecraft.advancements.critereon.MinMaxBounds;
+import me.katanya04.minespawnersforge.loot.SetDataComponentFunction;
+import net.minecraft.advancements.critereon.*;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntTag;
@@ -16,27 +19,50 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
-import net.minecraft.world.level.storage.loot.functions.CopyNbtFunction;
-import net.minecraft.world.level.storage.loot.functions.SetNbtFunction;
 import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition;
 import net.minecraft.world.level.storage.loot.predicates.MatchTool;
 import net.minecraft.world.level.storage.loot.providers.nbt.ContextNbtProvider;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraftforge.common.data.GlobalLootModifierProvider;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Collections;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Data generation class, specifies the spawner loot table
  */
 public class ModGlobalLootModifiersProvider extends GlobalLootModifierProvider {
-    public ModGlobalLootModifiersProvider(PackOutput output) {
-        super(output, Mine_spawners_forge.MOD_ID);
+    public ModGlobalLootModifiersProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
+        super(output, Mine_spawners_forge.MOD_ID, registries);
     }
 
     @Override
-    protected void start() {
+    protected void start(HolderLookup.@NotNull Provider registries) {
+        var items = registries.lookupOrThrow(Registries.ITEM);
+        var enchantments = registries.lookupOrThrow(Registries.ENCHANTMENT);
+
         ItemPredicate.Builder pickaxeWithSilktouch = ItemPredicate.Builder.item();
-        pickaxeWithSilktouch.of(ItemTags.PICKAXES);
-        pickaxeWithSilktouch.hasEnchantment(new EnchantmentPredicate(Enchantments.SILK_TOUCH, MinMaxBounds.Ints.atLeast(1)));
+        pickaxeWithSilktouch.of(items, ItemTags.PICKAXES);
+        pickaxeWithSilktouch.withSubPredicate(ItemSubPredicates.ENCHANTMENTS, ItemEnchantmentsPredicate.Enchantments
+                .enchantments(Collections.singletonList(new EnchantmentPredicate(enchantments.get(Enchantments.SILK_TOUCH).get(), MinMaxBounds.Ints.atLeast(1)))));
+
+        //pickaxeWithSilktouch.hasComponents(ItemSubPredicates.ENCHANTMENTS, ItemEnchantmentsPredicate.Enchantments
+        //        .enchantments(Collections.singletonList(new EnchantmentPredicate(enchantments.get(Enchantments.SILK_TOUCH).get(), MinMaxBounds.Ints.atLeast(1)))));
+
+        //pickaxeWithSilktouch.hasComponents(DataComponentPredicate.builder().expect(
+        //        //new ItemEnchantmentsPredicate.Enchantments(Collections.singletonList(new EnchantmentPredicate(enchantments.get(Enchantments.SILK_TOUCH).get(), MinMaxBounds.Ints.atLeast(1))))
+        //        new TypedDataComponent<>(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY)).build());
+
+        //pickaxeWithSilktouch.hasComponents(DataComponentPredicate.allOf(DataComponentMap.builder().set(DataComponents.ENCHANTMENTS,
+        //        ItemEnchantmentsPredicate.Enchantments
+        //                .enchantments(Collections.singletonList(new EnchantmentPredicate(enchantments.get(Enchantments.SILK_TOUCH).get(), MinMaxBounds.Ints.atLeast(1)))));
+
+        //ItemEnchantments.EMPTY.keySet().add(Holder.direct(enchantments.get(Enchantments.SILK_TOUCH).get().get()));
+        //new ItemEnchantments
+
+        //pickaxeWithSilktouch.hasComponents(DataComponentPredicate.allOf(DataComponentMap.builder().set(DataComponents.ENCHANTMENTS,
+        //        ItemEnchantments.EMPTY).build()));
 
         CompoundTag removeDelayAndCoords = new CompoundTag();
         CompoundTag insideBlockTag = new CompoundTag();
@@ -44,20 +70,18 @@ public class ModGlobalLootModifiersProvider extends GlobalLootModifierProvider {
         insideBlockTag.put("x", IntTag.valueOf(0));
         insideBlockTag.put("y", IntTag.valueOf(0));
         insideBlockTag.put("z", IntTag.valueOf(0));
-        removeDelayAndCoords.put("BlockEntityTag", insideBlockTag);
+        removeDelayAndCoords.put("to_block_entity_data", insideBlockTag);
 
         add("drop_spawner", new LootPoolWithConfigChanceModifier(LootPool.lootPool().setRolls(ConstantValue.exactly(1)).add(
                     LootItem.lootTableItem(Items.SPAWNER)
                     .apply(
-                            CopyNbtFunction.copyData(ContextNbtProvider.BLOCK_ENTITY)
-                                    .copy("{}", "BlockEntityTag", CopyNbtFunction.MergeStrategy.MERGE)
-                    ).apply(SetNbtFunction.setTag(removeDelayAndCoords))
+                            CopyDataComponentFunction.copyData(ContextNbtProvider.BLOCK_ENTITY)
+                                    .copy("{}", "to_block_entity_data", CopyDataComponentFunction.MergeStrategy.REPLACE, DataComponents.BLOCK_ENTITY_DATA)
+                    ).apply(SetDataComponentFunction.setDataComponent(removeDelayAndCoords, DataComponents.BLOCK_ENTITY_DATA))
                     .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(Blocks.SPAWNER))
                     .when(MatchTool.toolMatches(pickaxeWithSilktouch))
                 ).name("drop_spawner").build(),
                 Config.DROP_CHANCE)
         );
-
-
     }
 }
