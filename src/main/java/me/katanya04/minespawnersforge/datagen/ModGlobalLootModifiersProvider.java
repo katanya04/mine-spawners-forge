@@ -2,9 +2,9 @@ package me.katanya04.minespawnersforge.datagen;
 
 import me.katanya04.minespawnersforge.config.Config;
 import me.katanya04.minespawnersforge.Mine_spawners_forge;
-import me.katanya04.minespawnersforge.loot.CopyDataComponentFunction;
-import me.katanya04.minespawnersforge.loot.LootPoolWithConfigChanceModifier;
-import me.katanya04.minespawnersforge.loot.SetDataComponentFunction;
+import me.katanya04.minespawnersforge.loot.functions.CopyDataComponentFunction;
+import me.katanya04.minespawnersforge.loot.LootTableModifier;
+import me.katanya04.minespawnersforge.loot.functions.SetDataComponentFunction;
 import net.minecraft.advancements.critereon.*;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
@@ -20,6 +20,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition;
+import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
 import net.minecraft.world.level.storage.loot.predicates.MatchTool;
 import net.minecraft.world.level.storage.loot.providers.nbt.ContextNbtProvider;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
@@ -45,28 +46,26 @@ public class ModGlobalLootModifiersProvider extends GlobalLootModifierProvider {
         ItemPredicate.Builder pickaxeWithSilktouch = ItemPredicate.Builder.item();
         pickaxeWithSilktouch.of(items, ItemTags.PICKAXES);
         pickaxeWithSilktouch.withSubPredicate(ItemSubPredicates.ENCHANTMENTS, ItemEnchantmentsPredicate.Enchantments.enchantments(
-                Collections.singletonList(new EnchantmentPredicate(enchantments.get(Enchantments.SILK_TOUCH).get(),
+                Collections.singletonList(new EnchantmentPredicate(enchantments.getOrThrow(Enchantments.SILK_TOUCH),
                         MinMaxBounds.Ints.atLeast(1))))
         );
 
         CompoundTag removeDelayAndCoords = new CompoundTag();
-        CompoundTag insideBlockTag = new CompoundTag();
-        insideBlockTag.put("Delay", ShortTag.valueOf((short) -1));
-        insideBlockTag.put("x", IntTag.valueOf(0));
-        insideBlockTag.put("y", IntTag.valueOf(0));
-        insideBlockTag.put("z", IntTag.valueOf(0));
-        removeDelayAndCoords.put("to_block_entity_data", insideBlockTag);
+        removeDelayAndCoords.put("Delay", ShortTag.valueOf((short) -1));
+        removeDelayAndCoords.put("x", IntTag.valueOf(0));
+        removeDelayAndCoords.put("y", IntTag.valueOf(0));
+        removeDelayAndCoords.put("z", IntTag.valueOf(0));
 
-        add("drop_spawner", new LootPoolWithConfigChanceModifier(LootPool.lootPool().setRolls(ConstantValue.exactly(1)).add(
+        add("drop_spawner", new LootTableModifier(LootPool.lootPool().setRolls(ConstantValue.exactly(1)).add(
                     LootItem.lootTableItem(Items.SPAWNER)
                     .apply(
                             CopyDataComponentFunction.copyData(ContextNbtProvider.BLOCK_ENTITY)
-                                    .copy("{}", "to_block_entity_data", CopyDataComponentFunction.MergeStrategy.REPLACE, DataComponents.BLOCK_ENTITY_DATA)
+                                    .copy("{}", "{}", CopyDataComponentFunction.MergeStrategy.REPLACE, DataComponents.BLOCK_ENTITY_DATA)
                     ).apply(SetDataComponentFunction.setDataComponent(removeDelayAndCoords, DataComponents.BLOCK_ENTITY_DATA))
                     .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(Blocks.SPAWNER))
                     .when(MatchTool.toolMatches(pickaxeWithSilktouch))
-                ).name("drop_spawner").build(),
-                Config.DROP_CHANCE)
+                    .when(LootItemRandomChanceCondition.randomChance(Config.DROP_CHANCE))
+                ).name("drop_spawner").build())
         );
     }
 }

@@ -2,6 +2,7 @@ package me.katanya04.minespawnersforge;
 
 import me.katanya04.minespawnersforge.config.Config;
 import me.katanya04.minespawnersforge.config.ConfigScreen;
+import me.katanya04.minespawnersforge.config.ConfigNumericField;
 import me.katanya04.minespawnersforge.loot.ModLootModifiers;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.ConfigScreenHandler;
@@ -21,9 +22,9 @@ public class Mine_spawners_forge {
 
     public Mine_spawners_forge(FMLJavaModLoadingContext context) {
         ModLootModifiers.register(context.getModEventBus());
+        ConfigNumericField.register(context.getModEventBus());
         context.registerConfig(ModConfig.Type.COMMON, Config.SPEC, "mine_spawners_forge-config.toml");
     }
-
 
     @Mod.EventBusSubscriber(modid = MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
     public static class ClientModEvents {
@@ -33,7 +34,6 @@ public class Mine_spawners_forge {
                     ConfigScreenHandler.ConfigScreenFactory.class,
                     () -> new ConfigScreenHandler.ConfigScreenFactory((mc, prevScreen) -> new ConfigScreen(){})
             );
-
         }
     }
 }

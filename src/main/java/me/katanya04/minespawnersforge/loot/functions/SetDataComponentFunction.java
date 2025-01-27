@@ -1,7 +1,8 @@
-package me.katanya04.minespawnersforge.loot;
+package me.katanya04.minespawnersforge.loot.functions;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import me.katanya04.minespawnersforge.loot.ModLootModifiers;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
@@ -33,7 +34,7 @@ public class SetDataComponentFunction extends LootItemConditionalFunction {
 
 
     public @NotNull LootItemFunctionType<SetDataComponentFunction> getType() {
-        return ModLootModifiers.SET_DATA_COMPONENT;
+        return ModLootModifiers.SET_DATA_COMPONENT.get();
     }
 
     public @NotNull ItemStack run(@NotNull ItemStack p_328195_, @NotNull LootContext p_331034_) {

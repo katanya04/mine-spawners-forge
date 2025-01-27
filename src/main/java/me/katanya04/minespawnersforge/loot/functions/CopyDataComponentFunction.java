@@ -1,4 +1,4 @@
-package me.katanya04.minespawnersforge.loot;
+package me.katanya04.minespawnersforge.loot.functions;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -6,6 +6,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import me.katanya04.minespawnersforge.loot.ModLootModifiers;
 import net.minecraft.commands.arguments.NbtPathArgument;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
@@ -43,7 +44,7 @@ public class CopyDataComponentFunction extends LootItemConditionalFunction {
     }
 
     public @NotNull LootItemFunctionType<CopyDataComponentFunction> getType() {
-        return ModLootModifiers.COPY_DATA_COMPONENT;
+        return ModLootModifiers.COPY_DATA_COMPONENT.get();
     }
 
     public @NotNull Set<ContextKey<?>> getReferencedContextParams() {

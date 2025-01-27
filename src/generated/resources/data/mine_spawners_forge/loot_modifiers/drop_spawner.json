@@ -1,6 +1,5 @@
 {
   "type": "mine_spawners_forge:loot_pool",
-  "configField": "Mine Spawners Config.dropChance",
   "pools": [
     {
       "bonus_rolls": 0.0,
@@ -15,33 +14,44 @@
             {
               "condition": "minecraft:match_tool",
               "predicate": {
-                "enchantments": [
-                  {
-                    "enchantment": "minecraft:silk_touch",
-                    "levels": {
-                      "min": 1
+                "items": "#minecraft:pickaxes",
+                "predicates": {
+                  "minecraft:enchantments": [
+                    {
+                      "enchantments": "minecraft:silk_touch",
+                      "levels": {
+                        "min": 1
+                      }
                     }
-                  }
-                ],
-                "tag": "minecraft:pickaxes"
+                  ]
+                }
               }
+            },
+            {
+              "chance": {
+                "type": "mine_spawners_forge:from_config",
+                "value": "Mine Spawners Config.dropChance"
+              },
+              "condition": "minecraft:random_chance"
             }
           ],
           "functions": [
             {
-              "function": "minecraft:copy_nbt",
+              "function": "mine_spawners_forge:copy_data_component",
               "ops": [
                 {
-                  "op": "merge",
+                  "dataComponentType": "minecraft:block_entity_data",
+                  "op": "replace",
                   "source": "{}",
-                  "target": "BlockEntityTag"
+                  "target": "{}"
                 }
               ],
               "source": "block_entity"
             },
             {
-              "function": "minecraft:set_nbt",
-              "tag": "{BlockEntityTag:{Delay:-1s,x:0,y:0,z:0}}"
+              "dataComponentType": "minecraft:block_entity_data",
+              "function": "mine_spawners_forge:set_data_component",
+              "tag": "{Delay:-1s,x:0,y:0,z:0}"
             }
           ],
           "name": "minecraft:spawner"
