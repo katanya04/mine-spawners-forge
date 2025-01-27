@@ -44,25 +44,10 @@ public class ModGlobalLootModifiersProvider extends GlobalLootModifierProvider {
 
         ItemPredicate.Builder pickaxeWithSilktouch = ItemPredicate.Builder.item();
         pickaxeWithSilktouch.of(items, ItemTags.PICKAXES);
-        pickaxeWithSilktouch.withSubPredicate(ItemSubPredicates.ENCHANTMENTS, ItemEnchantmentsPredicate.Enchantments
-                .enchantments(Collections.singletonList(new EnchantmentPredicate(enchantments.get(Enchantments.SILK_TOUCH).get(), MinMaxBounds.Ints.atLeast(1)))));
-
-        //pickaxeWithSilktouch.hasComponents(ItemSubPredicates.ENCHANTMENTS, ItemEnchantmentsPredicate.Enchantments
-        //        .enchantments(Collections.singletonList(new EnchantmentPredicate(enchantments.get(Enchantments.SILK_TOUCH).get(), MinMaxBounds.Ints.atLeast(1)))));
-
-        //pickaxeWithSilktouch.hasComponents(DataComponentPredicate.builder().expect(
-        //        //new ItemEnchantmentsPredicate.Enchantments(Collections.singletonList(new EnchantmentPredicate(enchantments.get(Enchantments.SILK_TOUCH).get(), MinMaxBounds.Ints.atLeast(1))))
-        //        new TypedDataComponent<>(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY)).build());
-
-        //pickaxeWithSilktouch.hasComponents(DataComponentPredicate.allOf(DataComponentMap.builder().set(DataComponents.ENCHANTMENTS,
-        //        ItemEnchantmentsPredicate.Enchantments
-        //                .enchantments(Collections.singletonList(new EnchantmentPredicate(enchantments.get(Enchantments.SILK_TOUCH).get(), MinMaxBounds.Ints.atLeast(1)))));
-
-        //ItemEnchantments.EMPTY.keySet().add(Holder.direct(enchantments.get(Enchantments.SILK_TOUCH).get().get()));
-        //new ItemEnchantments
-
-        //pickaxeWithSilktouch.hasComponents(DataComponentPredicate.allOf(DataComponentMap.builder().set(DataComponents.ENCHANTMENTS,
-        //        ItemEnchantments.EMPTY).build()));
+        pickaxeWithSilktouch.withSubPredicate(ItemSubPredicates.ENCHANTMENTS, ItemEnchantmentsPredicate.Enchantments.enchantments(
+                Collections.singletonList(new EnchantmentPredicate(enchantments.get(Enchantments.SILK_TOUCH).get(),
+                        MinMaxBounds.Ints.atLeast(1))))
+        );
 
         CompoundTag removeDelayAndCoords = new CompoundTag();
         CompoundTag insideBlockTag = new CompoundTag();
