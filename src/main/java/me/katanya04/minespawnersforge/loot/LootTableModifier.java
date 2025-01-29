@@ -18,7 +18,8 @@ import java.util.List;
 import java.util.function.Supplier;
 
 /**
- *
+ * The loot pool modifier class, specifies how to serialize and deserialize a list of loot pools,
+ * and how to apply them
  */
 public class LootTableModifier extends LootModifier {
     private final List<LootPool> pools;
@@ -34,15 +35,11 @@ public class LootTableModifier extends LootModifier {
 
     @Override
     protected @NotNull ObjectArrayList<ItemStack> doApply(LootTable lootTable, ObjectArrayList<ItemStack> generatedLoot, LootContext context) {
+        pools.forEach(p -> p.addRandomItems(generatedLoot::add, context));
         return generatedLoot;
     }
 
     static {
-        /*CODEC = Suppliers.memoize(() -> RecordCodecBuilder.mapCodec(instance ->
-                instance.group(LootTable.DIRECT_CODEC.fieldOf("pools").forGetter(self -> Collections.singletonList(self.pool))).and(
-                        Codec.STRING.fieldOf("configField").forGetter(self -> self.configField == null ? "" : String.join(".", self.configField.getPath()))
-                ).apply(instance, ((lootPools, s) -> new LootTableModifier(lootPools, s.isEmpty() ? null : Config.SPEC.getValues().get(s))))
-        ));*/
         CODEC = Suppliers.memoize(() -> RecordCodecBuilder.mapCodec(instance ->
                 instance.group(LootPool.CODEC.listOf().fieldOf("pools").forGetter(self -> self.pools))
                         .apply(instance, LootTableModifier::new))

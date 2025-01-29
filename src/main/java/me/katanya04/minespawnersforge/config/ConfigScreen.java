@@ -33,10 +33,10 @@ public class ConfigScreen extends Screen {
         addRenderableWidget(titleDrop);
 
         ForgeSlider sliderDrop = new ForgeSlider(titleDrop.getX() + titleDrop.getWidth() + 15, 15, 100, 20, MutableComponent.create(new PlainTextContents.LiteralContents("")),
-                MutableComponent.create(new PlainTextContents.LiteralContents("% chance")), 0.0, 100.0, Config.DROP_CHANCE.getFloat(), 0.1, 0, true) {
+                MutableComponent.create(new PlainTextContents.LiteralContents("% chance")), 0.0, 100.0, (Config.DROP_CHANCE.getFloat() * 100), 0.1, 0, true) {
             @Override
             public void setValue(double value) {
-                value = Mth.clamp(value, 0.0, 100.0);
+                value = Mth.clamp(value, 0.0, 1.0);
                 super.setValue(value);
                 Config.DROP_CHANCE.setValue(value);
             }
@@ -44,7 +44,7 @@ public class ConfigScreen extends Screen {
             @Override
             protected void applyValue() {
                 super.applyValue();
-                Config.DROP_CHANCE.setValue(value * 100);
+                Config.DROP_CHANCE.setValue(value);
             }
 
             @Override

@@ -9,7 +9,6 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import me.katanya04.minespawnersforge.loot.ModLootModifiers;
 import net.minecraft.commands.arguments.NbtPathArgument;
 import net.minecraft.core.component.DataComponentType;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -23,13 +22,15 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.providers.nbt.ContextNbtProvider;
 import net.minecraft.world.level.storage.loot.providers.nbt.NbtProvider;
 import net.minecraft.world.level.storage.loot.providers.nbt.NbtProviders;
-import org.apache.commons.lang3.mutable.MutableObject;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Supplier;
 
+/**
+ * A LootTable function that copies NBT from the source to a DataComponent of the target
+ */
 public class CopyDataComponentFunction extends LootItemConditionalFunction {
     public static final MapCodec<CopyDataComponentFunction> CODEC = RecordCodecBuilder.mapCodec((p_334162_) ->
             commonFields(p_334162_).and(p_334162_.group(NbtProviders.CODEC.fieldOf("source").forGetter((p_330558_) -> p_330558_.source),
@@ -51,23 +52,18 @@ public class CopyDataComponentFunction extends LootItemConditionalFunction {
         return this.source.getReferencedContextParams();
     }
 
-    public @NotNull ItemStack run(@NotNull ItemStack item, @NotNull LootContext p_334578_) {
-        Tag $$2 = this.source.get(p_334578_);
-        if ($$2 != null) {
-            MutableObject<CompoundTag> $$3 = new MutableObject<>();
-            Supplier<Tag> $$4 = () -> {
-                if ($$3.getValue() == null) {
-                    $$3.setValue(item.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag());
-                }
+    public @NotNull ItemStack run(@NotNull ItemStack item, @NotNull LootContext lootContext) {
+        Tag sourceTag = this.source.get(lootContext);
+        if (sourceTag == null)
+            return item;
+        HashMap<DataComponentType<CustomData>, CompoundTag> tags = new HashMap<>();
+        this.operations.forEach((op) -> {
+            if (!tags.containsKey(op.dataComponentType))
+                tags.put(op.dataComponentType, item.getOrDefault(op.dataComponentType, CustomData.EMPTY).copyTag());
+            op.apply(tags, sourceTag);
+        });
+        tags.forEach((type, compoundTag) -> CustomData.set(type, item, compoundTag));
 
-                return (Tag) $$3.getValue();
-            };
-            this.operations.forEach((op) -> {
-                op.apply($$4, $$2);
-                CustomData.set(op.dataComponentType, item, $$3.getValue());
-            });
-
-        }
         return item;
     }
 
@@ -87,11 +83,11 @@ public class CopyDataComponentFunction extends LootItemConditionalFunction {
             this.source = p_328406_;
         }
 
-        public Builder copy(String p_331311_, String p_335916_, MergeStrategy p_332655_,
+        public Builder copy(String sourcePath, String targetPath, MergeStrategy p_332655_,
                                                       DataComponentType<CustomData> dataComponentType) {
             try {
-                this.ops.add(new CopyOperation(NbtPathArgument.NbtPath.of(p_331311_),
-                        NbtPathArgument.NbtPath.of(p_335916_), p_332655_, dataComponentType));
+                this.ops.add(new CopyOperation(NbtPathArgument.NbtPath.of(sourcePath),
+                        NbtPathArgument.NbtPath.of(targetPath), p_332655_, dataComponentType));
                 return this;
             } catch (CommandSyntaxException var5) {
                 throw new IllegalArgumentException(var5);
@@ -121,19 +117,11 @@ public class CopyDataComponentFunction extends LootItemConditionalFunction {
                         new CopyOperation(nbtPath, nbtPath2, mergeStrategy, (DataComponentType<CustomData>) dataComponentType1)))
         );
 
-        CopyOperation(NbtPathArgument.NbtPath sourcePath, NbtPathArgument.NbtPath targetPath, MergeStrategy op,
-                      DataComponentType<CustomData> dataComponentType) {
-            this.sourcePath = sourcePath;
-            this.targetPath = targetPath;
-            this.op = op;
-            this.dataComponentType = dataComponentType;
-        }
-
-        public void apply(Supplier<Tag> p_328581_, Tag sourcePath) {
+        public void apply(HashMap<DataComponentType<CustomData>, CompoundTag> tags, Tag sourceTag) {
             try {
-                List<Tag> sourceNBT = this.sourcePath.get(sourcePath);
+                List<Tag> sourceNBT = this.sourcePath.get(sourceTag);
                 if (!sourceNBT.isEmpty()) {
-                    this.op.merge(p_328581_.get(), this.targetPath, sourceNBT);
+                    this.op.merge(tags, this.dataComponentType, this.targetPath, sourceNBT);
                 }
             } catch (CommandSyntaxException ignored) {}
         }
@@ -157,26 +145,28 @@ public class CopyDataComponentFunction extends LootItemConditionalFunction {
 
     public enum MergeStrategy implements StringRepresentable {
         REPLACE("replace") {
-            public void merge(Tag p_327968_, NbtPathArgument.NbtPath p_329545_, List<Tag> p_330977_) throws CommandSyntaxException {
-                p_329545_.set(p_327968_, Iterables.getLast(p_330977_));
+            public void merge(HashMap<DataComponentType<CustomData>, CompoundTag> tags,
+                              DataComponentType<CustomData> dataComponentType, NbtPathArgument.NbtPath targetPath, List<Tag> p_330977_) throws CommandSyntaxException {
+                Tag newValue = Iterables.getLast(p_330977_).copy();
+                tags.put(dataComponentType, (CompoundTag) newValue);
+                targetPath.set(tags.get(dataComponentType), newValue);
             }
         },
         APPEND("append") {
-            public void merge(Tag p_334866_, NbtPathArgument.NbtPath p_330111_, List<Tag> p_331184_) throws CommandSyntaxException {
-                List<Tag> $$3 = p_330111_.getOrCreate(p_334866_, ListTag::new);
+            public void merge(HashMap<DataComponentType<CustomData>, CompoundTag> tags,
+                              DataComponentType<CustomData> dataComponentType, NbtPathArgument.NbtPath targetPath, List<Tag> p_331184_) throws CommandSyntaxException {
+                List<Tag> $$3 = targetPath.getOrCreate(tags.get(dataComponentType), ListTag::new);
                 $$3.forEach((p_328852_) -> {
                     if (p_328852_ instanceof ListTag) {
-                        p_331184_.forEach((p_333613_) -> {
-                            ((ListTag)p_328852_).add(p_333613_.copy());
-                        });
+                        p_331184_.forEach((p_333613_) -> ((ListTag)p_328852_).add(p_333613_.copy()));
                     }
-
                 });
             }
         },
         MERGE("merge") {
-            public void merge(Tag p_330874_, NbtPathArgument.NbtPath p_329263_, List<Tag> p_336007_) throws CommandSyntaxException {
-                List<Tag> $$3 = p_329263_.getOrCreate(p_330874_, CompoundTag::new);
+            public void merge(HashMap<DataComponentType<CustomData>, CompoundTag> tags,
+                              DataComponentType<CustomData> dataComponentType, NbtPathArgument.NbtPath targetPath, List<Tag> p_336007_) throws CommandSyntaxException {
+                List<Tag> $$3 = targetPath.getOrCreate(tags.get(dataComponentType), CompoundTag::new);
                 $$3.forEach((p_328276_) -> {
                     if (p_328276_ instanceof CompoundTag) {
                         p_336007_.forEach((p_330167_) -> {
@@ -194,7 +184,9 @@ public class CopyDataComponentFunction extends LootItemConditionalFunction {
         public static final Codec<MergeStrategy> CODEC = StringRepresentable.fromEnum(MergeStrategy::values);
         private final String name;
 
-        public abstract void merge(Tag var1, NbtPathArgument.NbtPath var2, List<Tag> var3) throws CommandSyntaxException;
+        public abstract void merge(HashMap<DataComponentType<CustomData>, CompoundTag> tags,
+                                   DataComponentType<CustomData> dataComponentType, NbtPathArgument.NbtPath var2, List<Tag> var3)
+                throws CommandSyntaxException;
 
         MergeStrategy(final String p_328833_) {
             this.name = p_328833_;

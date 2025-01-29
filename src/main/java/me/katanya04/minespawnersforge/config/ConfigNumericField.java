@@ -14,6 +14,11 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Holds a numeric config field
+ * @param configField the config field
+ * @param <T> the numeric (extends {@link Number}) type of the config field
+ */
 public record ConfigNumericField<T extends Number>(ForgeConfigSpec.ConfigValue<T> configField) implements NumberProvider {
     static DeferredRegister<LootNumberProviderType> LOOT_NUMBER_PROVIDERS =
             DeferredRegister.create(BuiltInRegistries.LOOT_NUMBER_PROVIDER_TYPE.key(), Mine_spawners_forge.MOD_ID);

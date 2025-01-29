@@ -14,17 +14,7 @@
             {
               "condition": "minecraft:match_tool",
               "predicate": {
-                "items": "#minecraft:pickaxes",
-                "predicates": {
-                  "minecraft:enchantments": [
-                    {
-                      "enchantments": "minecraft:silk_touch",
-                      "levels": {
-                        "min": 1
-                      }
-                    }
-                  ]
-                }
+                "items": "minecraft:flint"
               }
             },
             {

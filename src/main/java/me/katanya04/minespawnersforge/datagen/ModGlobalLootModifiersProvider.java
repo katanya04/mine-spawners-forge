@@ -44,11 +44,11 @@ public class ModGlobalLootModifiersProvider extends GlobalLootModifierProvider {
         var enchantments = registries.lookupOrThrow(Registries.ENCHANTMENT);
 
         ItemPredicate.Builder pickaxeWithSilktouch = ItemPredicate.Builder.item();
-        pickaxeWithSilktouch.of(items, ItemTags.PICKAXES);
-        pickaxeWithSilktouch.withSubPredicate(ItemSubPredicates.ENCHANTMENTS, ItemEnchantmentsPredicate.Enchantments.enchantments(
+        pickaxeWithSilktouch.of(items, Items.FLINT); /// for some reason doesn't recognize this tag
+        /*pickaxeWithSilktouch.withSubPredicate(ItemSubPredicates.ENCHANTMENTS, ItemEnchantmentsPredicate.Enchantments.enchantments(
                 Collections.singletonList(new EnchantmentPredicate(enchantments.getOrThrow(Enchantments.SILK_TOUCH),
                         MinMaxBounds.Ints.atLeast(1))))
-        );
+        );*/
 
         CompoundTag removeDelayAndCoords = new CompoundTag();
         removeDelayAndCoords.put("Delay", ShortTag.valueOf((short) -1));
@@ -60,8 +60,8 @@ public class ModGlobalLootModifiersProvider extends GlobalLootModifierProvider {
                     LootItem.lootTableItem(Items.SPAWNER)
                     .apply(
                             CopyDataComponentFunction.copyData(ContextNbtProvider.BLOCK_ENTITY)
-                                    .copy("{}", "{}", CopyDataComponentFunction.MergeStrategy.REPLACE, DataComponents.BLOCK_ENTITY_DATA)
-                    ).apply(SetDataComponentFunction.setDataComponent(removeDelayAndCoords, DataComponents.BLOCK_ENTITY_DATA))
+                                    .copy("{}", "{}", CopyDataComponentFunction.MergeStrategy.REPLACE, DataComponents.BLOCK_ENTITY_DATA))
+                    .apply(SetDataComponentFunction.setDataComponent(removeDelayAndCoords, DataComponents.BLOCK_ENTITY_DATA))
                     .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(Blocks.SPAWNER))
                     .when(MatchTool.toolMatches(pickaxeWithSilktouch))
                     .when(LootItemRandomChanceCondition.randomChance(Config.DROP_CHANCE))

@@ -5,8 +5,6 @@ import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-import java.util.function.Supplier;
-
 /**
  * The data generation class, used to generate the .json for the spawner loot table
  */
