@@ -41,14 +41,15 @@ public class ModGlobalLootModifiersProvider extends GlobalLootModifierProvider {
     @Override
     protected void start(HolderLookup.@NotNull Provider registries) {
         var items = registries.lookupOrThrow(Registries.ITEM);
+        //var items = registries.lookupOrThrow(BuiltInRegistries.ITEM.key());
         var enchantments = registries.lookupOrThrow(Registries.ENCHANTMENT);
 
         ItemPredicate.Builder pickaxeWithSilktouch = ItemPredicate.Builder.item();
-        pickaxeWithSilktouch.of(items, Items.FLINT); /// for some reason doesn't recognize this tag
-        /*pickaxeWithSilktouch.withSubPredicate(ItemSubPredicates.ENCHANTMENTS, ItemEnchantmentsPredicate.Enchantments.enchantments(
+        pickaxeWithSilktouch.of(items, ItemTags.PICKAXES);
+        pickaxeWithSilktouch.withSubPredicate(ItemSubPredicates.ENCHANTMENTS, ItemEnchantmentsPredicate.Enchantments.enchantments(
                 Collections.singletonList(new EnchantmentPredicate(enchantments.getOrThrow(Enchantments.SILK_TOUCH),
                         MinMaxBounds.Ints.atLeast(1))))
-        );*/
+        );
 
         CompoundTag removeDelayAndCoords = new CompoundTag();
         removeDelayAndCoords.put("Delay", ShortTag.valueOf((short) -1));

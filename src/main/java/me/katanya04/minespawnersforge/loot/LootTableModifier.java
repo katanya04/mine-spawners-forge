@@ -39,14 +39,14 @@ public class LootTableModifier extends LootModifier {
         return generatedLoot;
     }
 
+    public static final Supplier<MapCodec<LootTableModifier>> CODEC;
+
     static {
         CODEC = Suppliers.memoize(() -> RecordCodecBuilder.mapCodec(instance ->
-                instance.group(LootPool.CODEC.listOf().fieldOf("pools").forGetter(self -> self.pools))
+                instance.group(LootPool.CONDITIONAL_CODEC.listOf().optionalFieldOf("pools", List.of()).forGetter(self -> self.pools))
                         .apply(instance, LootTableModifier::new))
         );
     }
-
-    public static final Supplier<MapCodec<LootTableModifier>> CODEC;
 
     @Override
     public MapCodec<? extends IGlobalLootModifier> codec() {
