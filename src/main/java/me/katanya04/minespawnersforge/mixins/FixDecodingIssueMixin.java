@@ -23,8 +23,12 @@ import java.util.*;
 
 import static net.minecraft.core.RegistryAccess.LOGGER;
 
+/**
+ * Uh... See <a href="https://github.com/MinecraftForge/MinecraftForge/issues/10409">this Forge issue I opened</a>.
+ * This mixin makes it so my data-generated .json loot table gets decoded after the item tags have been added to the registry
+ */
 @Mixin(value = LootModifierManager.class, remap = false)
-public abstract class DebugMixin {
+public abstract class FixDecodingIssueMixin {
     @Final
     @Shadow
     private HolderLookup.Provider registries;
