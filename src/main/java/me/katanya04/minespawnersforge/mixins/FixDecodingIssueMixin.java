@@ -47,7 +47,7 @@ public abstract class FixDecodingIssueMixin {
     private void injected(Map<ResourceLocation, JsonElement> resources, ResourceManager resourceManagerIn, ProfilerFiller profilerIn, CallbackInfo ci, ImmutableMap.Builder<ResourceLocation, IGlobalLootModifier> builder, RegistryOps<JsonElement> ops) {
         new Thread(() -> {
             int msTime = 0;
-            while (registries.listRegistries().filter(r -> r.key().equals(Registries.ITEM)).findAny().map(r -> r.listTags().filter(t -> t.key().equals(ItemTags.PICKAXES))).isEmpty()) {
+            while (registries.listRegistries().filter(r -> r.key().equals(Registries.ITEM)).findAny().map(r -> r.listTags().filter(t -> t.key().equals(ItemTags.PICKAXES)).map(t -> t.stream().findAny().isEmpty())).isEmpty()) {
                 if (msTime >= 10000) {
                     LOGGER.warn("More than 10 seconds waiting for #minecraft:pickaxes to be loaded into the registry...");
                     break;
@@ -62,9 +62,7 @@ public abstract class FixDecodingIssueMixin {
             var ops2 = registries.createSerializationContext(JsonOps.INSTANCE);
             ResourceLocation thisFuckingTable = ResourceLocation.fromNamespaceAndPath(Mine_spawners_forge.MOD_ID, "drop_spawner");
             IGlobalLootModifier.DIRECT_CODEC.parse(ops2, mine_spawners_forge$prev)
-                    // log error if parse fails
                     .ifError(error -> LOGGER.warn("Could not decode GlobalLootModifier with json id {} - error: {}", thisFuckingTable, error.message()))
-                    // add loot modifier if parse succeeds
                     .ifSuccess(modifier -> builder.put(thisFuckingTable, modifier));
             modifiers = builder.build();
         }).start();
