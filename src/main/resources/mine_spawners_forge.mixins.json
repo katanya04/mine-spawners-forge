@@ -4,7 +4,6 @@
   "package": "me.katanya04.minespawnersforge.mixins",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "FixDecodingIssueMixin",
     "SpawnerBlockPermissionsMixin"
   ],
   "injectors": {
