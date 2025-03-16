@@ -45,7 +45,6 @@ public class ModGlobalLootModifiersProvider extends GlobalLootModifierProvider {
         var enchantments = registries.lookupOrThrow(Registries.ENCHANTMENT);
 
         ItemPredicate.Builder pickaxeWithSilktouch = ItemPredicate.Builder.item();
-        pickaxeWithSilktouch.of(items, ItemTags.PICKAXES);
         pickaxeWithSilktouch.withSubPredicate(ItemSubPredicates.ENCHANTMENTS, ItemEnchantmentsPredicate.Enchantments.enchantments(
                 Collections.singletonList(new EnchantmentPredicate(enchantments.getOrThrow(Enchantments.SILK_TOUCH),
                         MinMaxBounds.Ints.atLeast(1))))
@@ -66,6 +65,18 @@ public class ModGlobalLootModifiersProvider extends GlobalLootModifierProvider {
                     .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(Blocks.SPAWNER))
                     .when(MatchTool.toolMatches(pickaxeWithSilktouch))
                     .when(LootItemRandomChanceCondition.randomChance(Config.DROP_CHANCE))
+                ).name("drop_spawner").build())
+        );
+
+        add("drop_trial_spawner", new LootTableModifier(LootPool.lootPool().setRolls(ConstantValue.exactly(1)).add(
+                        LootItem.lootTableItem(Items.TRIAL_SPAWNER)
+                                .apply(
+                                        CopyDataComponentFunction.copyData(ContextNbtProvider.BLOCK_ENTITY)
+                                                .copy("{}", "{}", CopyDataComponentFunction.MergeStrategy.REPLACE, DataComponents.BLOCK_ENTITY_DATA))
+                                .apply(SetDataComponentFunction.setDataComponent(removeDelayAndCoords, DataComponents.BLOCK_ENTITY_DATA))
+                                .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(Blocks.TRIAL_SPAWNER))
+                                .when(MatchTool.toolMatches(pickaxeWithSilktouch))
+                                .when(LootItemRandomChanceCondition.randomChance(Config.DROP_CHANCE))
                 ).name("drop_spawner").build())
         );
     }

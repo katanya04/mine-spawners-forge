@@ -1,6 +1,7 @@
 {
   "entries": [
-    "mine_spawners_forge:drop_spawner"
+    "mine_spawners_forge:drop_spawner",
+    "mine_spawners_forge:drop_trial_spawner"
   ],
   "replace": false
 }

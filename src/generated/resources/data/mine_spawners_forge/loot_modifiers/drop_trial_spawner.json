@@ -8,7 +8,7 @@
           "type": "minecraft:item",
           "conditions": [
             {
-              "block": "minecraft:spawner",
+              "block": "minecraft:trial_spawner",
               "condition": "minecraft:block_state_property"
             },
             {
@@ -53,7 +53,7 @@
               "tag": "{Delay:-1s,x:0,y:0,z:0}"
             }
           ],
-          "name": "minecraft:spawner"
+          "name": "minecraft:trial_spawner"
         }
       ],
       "name": "drop_spawner",

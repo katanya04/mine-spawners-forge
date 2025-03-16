@@ -29,23 +29,24 @@ public class SetDataComponentFunction extends LootItemConditionalFunction {
     private final CompoundTag tag;
     private final DataComponentType<CustomData> dataComponentType;
 
-    private SetDataComponentFunction(List<LootItemCondition> p_334383_, CompoundTag p_334528_, DataComponentType<CustomData> dataComponentType) {
-        super(p_334383_);
-        this.tag = p_334528_;
+    private SetDataComponentFunction(List<LootItemCondition> conditions, CompoundTag tag, DataComponentType<CustomData> dataComponentType) {
+        super(conditions);
+        this.tag = tag;
         this.dataComponentType = dataComponentType;
     }
 
-
+    @Override
     public @NotNull LootItemFunctionType<SetDataComponentFunction> getType() {
         return ModLootModifiers.SET_DATA_COMPONENT.get();
     }
 
-    public @NotNull ItemStack run(@NotNull ItemStack item, @NotNull LootContext p_331034_) {
+    @Override
+    public @NotNull ItemStack run(@NotNull ItemStack item, @NotNull LootContext ignored) {
         CustomData.update(this.dataComponentType, item, (itemDataComponent) -> itemDataComponent.merge(this.tag));
         return item;
     }
 
-    public static Builder<?> setDataComponent(CompoundTag p_328660_, DataComponentType<CustomData> dataComponentType) {
-        return simpleBuilder((p_332883_) -> new SetDataComponentFunction(p_332883_, p_328660_, dataComponentType));
+    public static Builder<?> setDataComponent(CompoundTag tag, DataComponentType<CustomData> dataComponentType) {
+        return simpleBuilder((conditions) -> new SetDataComponentFunction(conditions, tag, dataComponentType));
     }
 }
