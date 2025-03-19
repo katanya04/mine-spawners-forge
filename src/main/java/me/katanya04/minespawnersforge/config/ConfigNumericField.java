@@ -1,10 +1,11 @@
 package me.katanya04.minespawnersforge.config;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSerializationContext;
 import me.katanya04.minespawnersforge.Mine_spawners_forge;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.providers.number.LootNumberProviderType;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
@@ -15,7 +16,7 @@ import net.minecraftforge.registries.RegistryObject;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Holds a numeric config field
+ * Holds a numeric config field and implements {@link NumberProvider}
  * @param configField the config field
  * @param <T> the numeric (extends {@link Number}) type of the config field
  */
@@ -26,11 +27,7 @@ public record ConfigNumericField<T extends Number>(ForgeConfigSpec.ConfigValue<T
     public static void register(IEventBus eventBus) {
         LOOT_NUMBER_PROVIDERS.register(eventBus);
     }
-
-    public static final MapCodec<ConfigNumericField<Number>> CODEC = RecordCodecBuilder.mapCodec((instance) ->
-            instance.group(Codec.STRING.fieldOf("value").forGetter(self -> String.join(".", self.configField.getPath())))
-                    .apply(instance, path -> new ConfigNumericField<>(path.isEmpty() ? null : (ForgeConfigSpec.ConfigValue<Number>) Config.SPEC.getValues().get(path))));
-    public static final RegistryObject<LootNumberProviderType> FROM_CONFIG = LOOT_NUMBER_PROVIDERS.register("from_config", () -> new LootNumberProviderType(CODEC));
+    public static final RegistryObject<LootNumberProviderType> FROM_CONFIG = LOOT_NUMBER_PROVIDERS.register("from_config", () -> new LootNumberProviderType(new Serializer<>()));
 
     public float getFloat() {
         return this.configField.get().floatValue();
@@ -49,5 +46,17 @@ public record ConfigNumericField<T extends Number>(ForgeConfigSpec.ConfigValue<T
     @NotNull
     public LootNumberProviderType getType() {
         return FROM_CONFIG.get();
+    }
+
+    public static class Serializer<T extends Number> implements net.minecraft.world.level.storage.loot.Serializer<ConfigNumericField<T>> {
+        @Override
+        public void serialize(JsonObject jsonObject, ConfigNumericField<T> configNumericField, @NotNull JsonSerializationContext jsonSerializationContext) {
+            jsonObject.addProperty("key",  String.join(".", configNumericField.configField.getPath()));
+        }
+
+        @Override
+        public @NotNull ConfigNumericField<T> deserialize(@NotNull JsonObject jsonObject, @NotNull JsonDeserializationContext jsonDeserializationContext) {
+            return (ConfigNumericField<T>) Config.configValues.get(GsonHelper.getAsString(jsonObject, "key"));
+        }
     }
 }

@@ -1,13 +1,14 @@
 package me.katanya04.minespawnersforge.loot;
 
 import com.google.common.base.Suppliers;
+import com.google.gson.JsonSyntaxException;
 import com.mojang.serialization.*;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.storage.loot.Deserializers;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootPool;
-import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraftforge.common.loot.IGlobalLootModifier;
 import net.minecraftforge.common.loot.LootModifier;
@@ -34,22 +35,37 @@ public class LootTableModifier extends LootModifier {
     }
 
     @Override
-    protected @NotNull ObjectArrayList<ItemStack> doApply(LootTable lootTable, ObjectArrayList<ItemStack> generatedLoot, LootContext context) {
+    protected @NotNull ObjectArrayList<ItemStack> doApply(ObjectArrayList<ItemStack> generatedLoot, LootContext context) {
         pools.forEach(p -> p.addRandomItems(generatedLoot::add, context));
         return generatedLoot;
     }
 
-    public static final Supplier<MapCodec<LootTableModifier>> CODEC;
+    public static final Supplier<Codec<LootTableModifier>> CODEC;
 
     static {
-        CODEC = Suppliers.memoize(() -> RecordCodecBuilder.mapCodec(instance ->
-                instance.group(LootPool.CONDITIONAL_CODEC.listOf().optionalFieldOf("pools", List.of()).forGetter(self -> self.pools))
-                        .apply(instance, LootTableModifier::new))
-        );
+        var serializer = Deserializers.createLootTableSerializer().create();
+        var lootPoolCodec = Codec.list(Codec.PASSTHROUGH.flatXmap(it -> {
+            try {
+                return DataResult.success(serializer.fromJson(it.convert(JsonOps.INSTANCE).getValue(), LootPool.class));
+            } catch(JsonSyntaxException err) {
+                return null;
+            }
+        }, it -> {
+            try {
+                return DataResult.success(new Dynamic<>(JsonOps.INSTANCE, serializer.toJsonTree(it)));
+            } catch(JsonSyntaxException err) {
+                return null;
+            }
+        }));
+
+        CODEC = Suppliers.memoize(() -> RecordCodecBuilder.create(instance ->
+                instance.group(lootPoolCodec.fieldOf("pools").forGetter(self -> self.pools))
+                .apply(instance, LootTableModifier::new)
+        ));
     }
 
     @Override
-    public MapCodec<? extends IGlobalLootModifier> codec() {
+    public Codec<? extends IGlobalLootModifier> codec() {
         return CODEC.get();
     }
 }

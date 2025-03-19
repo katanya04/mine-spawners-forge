@@ -12,7 +12,7 @@ import net.minecraftforge.fml.common.Mod;
 
 /**
  * Event listening on block break event to see if it's a spawner, and remove the drop xp if it was
- * mined with a pickaxe enchanted with silk touch
+ * mined with a pickaxe
  */
 @Mod.EventBusSubscriber(modid = Mine_spawners_forge.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class SpawnerBlockDropsXpEvent {
@@ -25,7 +25,7 @@ public class SpawnerBlockDropsXpEvent {
         if (player == null)
             return;
         ItemStack tool = player.getMainHandItem();
-        if (tool.isCorrectToolForDrops(block) && tool.getEnchantments().keySet().contains(Enchantments.SILK_TOUCH.getOrThrow(event.getPlayer().level())))
+        if (tool.isCorrectToolForDrops(block) && tool.getAllEnchantments().containsKey(Enchantments.SILK_TOUCH))
             event.setExpToDrop(0);
     }
 }

@@ -14,43 +14,39 @@
             {
               "condition": "minecraft:match_tool",
               "predicate": {
-                "predicates": {
-                  "minecraft:enchantments": [
-                    {
-                      "enchantments": "minecraft:silk_touch",
-                      "levels": {
-                        "min": 1
-                      }
+                "enchantments": [
+                  {
+                    "enchantment": "minecraft:silk_touch",
+                    "levels": {
+                      "min": 1
                     }
-                  ]
-                }
+                  }
+                ]
               }
             },
             {
               "chance": {
                 "type": "mine_spawners_forge:from_config",
-                "value": "Mine Spawners Config.dropChance"
+                "key": "Mine Spawners Config.dropChance"
               },
-              "condition": "minecraft:random_chance"
+              "condition": "mine_spawners_forge:random_chance_from_provider"
             }
           ],
           "functions": [
             {
-              "function": "mine_spawners_forge:copy_data_component",
+              "function": "minecraft:copy_nbt",
               "ops": [
                 {
-                  "dataComponentType": "minecraft:block_entity_data",
-                  "op": "replace",
+                  "op": "merge",
                   "source": "{}",
-                  "target": "{}"
+                  "target": "BlockEntityTag"
                 }
               ],
               "source": "block_entity"
             },
             {
-              "dataComponentType": "minecraft:block_entity_data",
-              "function": "mine_spawners_forge:set_data_component",
-              "tag": "{Delay:-1s,x:0,y:0,z:0}"
+              "function": "minecraft:set_nbt",
+              "tag": "{BlockEntityTag:{Delay:-1s,x:0,y:0,z:0}}"
             }
           ],
           "name": "minecraft:spawner"
