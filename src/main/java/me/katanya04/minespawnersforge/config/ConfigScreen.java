@@ -4,6 +4,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.contents.PlainTextContents;
 import net.minecraft.util.Mth;
@@ -33,7 +34,7 @@ public class ConfigScreen extends Screen {
         addRenderableWidget(titleDrop);
 
         ForgeSlider sliderDrop = new ForgeSlider(titleDrop.getX() + titleDrop.getWidth() + 15, 15, 100, 20, MutableComponent.create(new PlainTextContents.LiteralContents("")),
-                MutableComponent.create(new PlainTextContents.LiteralContents("% chance")), 0.0, 100.0, (Config.DROP_CHANCE.getFloat() * 100), 0.1, 0, true) {
+                MutableComponent.create(new PlainTextContents.LiteralContents("% chance")), 0.0, 1.0, Config.DROP_CHANCE.getFloat(), 0.01, 0, true) {
             @Override
             public void setValue(double value) {
                 value = Mth.clamp(value, 0.0, 1.0);
@@ -52,7 +53,15 @@ public class ConfigScreen extends Screen {
                 return MutableComponent.create(new PlainTextContents.LiteralContents("Drop chance: " + value * 100 + "% chance"));
             }
 
+            @Override
+            protected void updateMessage() {
+                if (this.drawString) {
+                    this.setMessage(Component.literal("").append(this.prefix).append(String.format("%.0f", this.value * 100)).append(this.suffix));
+                } else {
+                    this.setMessage(Component.empty());
+                }
 
+            }
         };
         addRenderableWidget(sliderDrop);
 
