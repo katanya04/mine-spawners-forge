@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 @Mixin(Blocks.class)
 public class TrialSpawnerCorrectToolMixin {
 
-    @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/Blocks;register(Ljava/lang/String;Ljava/util/function/Function;Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;)Lnet/minecraft/world/level/block/Block;", ordinal = 825), method = "<clinit>", index = 2)
+    @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/Blocks;register(Ljava/lang/String;Ljava/util/function/Function;Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;)Lnet/minecraft/world/level/block/Block;", ordinal = 850), method = "<clinit>", index = 2)
     private static BlockBehaviour.Properties injected(BlockBehaviour.Properties properties) {
         return properties.requiresCorrectToolForDrops();
     }

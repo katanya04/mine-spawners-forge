@@ -8,12 +8,13 @@ import me.katanya04.minespawnersforge.loot.functions.SetDataComponentFunction;
 import net.minecraft.advancements.critereon.*;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.component.predicates.DataComponentPredicates;
+import net.minecraft.core.component.predicates.EnchantmentsPredicate;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.ShortTag;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.Blocks;
@@ -45,9 +46,10 @@ public class ModGlobalLootModifiersProvider extends GlobalLootModifierProvider {
         var enchantments = registries.lookupOrThrow(Registries.ENCHANTMENT);
 
         ItemPredicate.Builder pickaxeWithSilktouch = ItemPredicate.Builder.item();
-        pickaxeWithSilktouch.withSubPredicate(ItemSubPredicates.ENCHANTMENTS, ItemEnchantmentsPredicate.Enchantments.enchantments(
-                Collections.singletonList(new EnchantmentPredicate(enchantments.getOrThrow(Enchantments.SILK_TOUCH),
-                        MinMaxBounds.Ints.atLeast(1))))
+        pickaxeWithSilktouch.withComponents(DataComponentMatchers.Builder.components().partial(DataComponentPredicates.ENCHANTMENTS,
+                        EnchantmentsPredicate.enchantments(Collections.singletonList(new EnchantmentPredicate(
+                                enchantments.getOrThrow(Enchantments.SILK_TOUCH),
+                        MinMaxBounds.Ints.atLeast(1))))).build()
         );
 
         CompoundTag removeDelayAndCoords = new CompoundTag();
