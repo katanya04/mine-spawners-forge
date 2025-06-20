@@ -32,6 +32,14 @@
                 "value": "Mine Spawners Config.dropChance"
               },
               "condition": "minecraft:random_chance"
+            },
+            {
+              "condition": "minecraft:inverted",
+              "term": {
+                "condition": "mine_spawners_forge:match_tool_with_dynamic_tag",
+                "dynamicTag": "mine_spawners_forge:blacklisted",
+                "predicate": {}
+              }
             }
           ],
           "functions": [

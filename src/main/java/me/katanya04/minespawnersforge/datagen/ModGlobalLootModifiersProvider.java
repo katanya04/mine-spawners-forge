@@ -2,9 +2,11 @@ package me.katanya04.minespawnersforge.datagen;
 
 import me.katanya04.minespawnersforge.config.Config;
 import me.katanya04.minespawnersforge.Mine_spawners_forge;
+import me.katanya04.minespawnersforge.loot.conditions.MatchToolWithDynamicTag;
 import me.katanya04.minespawnersforge.loot.functions.CopyDataComponentFunction;
 import me.katanya04.minespawnersforge.loot.LootTableModifier;
 import me.katanya04.minespawnersforge.loot.functions.SetDataComponentFunction;
+import me.katanya04.minespawnersforge.tags.DynamicTags;
 import net.minecraft.advancements.critereon.*;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
@@ -20,6 +22,7 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.predicates.InvertedLootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
 import net.minecraft.world.level.storage.loot.predicates.MatchTool;
@@ -42,7 +45,6 @@ public class ModGlobalLootModifiersProvider extends GlobalLootModifierProvider {
     @Override
     protected void start(HolderLookup.@NotNull Provider registries) {
         var items = registries.lookupOrThrow(Registries.ITEM);
-        //var items = registries.lookupOrThrow(BuiltInRegistries.ITEM.key());
         var enchantments = registries.lookupOrThrow(Registries.ENCHANTMENT);
 
         ItemPredicate.Builder pickaxeWithSilktouch = ItemPredicate.Builder.item();
@@ -67,6 +69,7 @@ public class ModGlobalLootModifiersProvider extends GlobalLootModifierProvider {
                     .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(Blocks.SPAWNER))
                     .when(MatchTool.toolMatches(pickaxeWithSilktouch))
                     .when(LootItemRandomChanceCondition.randomChance(Config.DROP_CHANCE))
+                    .when(InvertedLootItemCondition.invert(MatchToolWithDynamicTag.toolMatches(ItemPredicate.Builder.item(), DynamicTags.BLACKLISTED)))
                 ).name("drop_spawner").build())
         );
 
@@ -79,6 +82,7 @@ public class ModGlobalLootModifiersProvider extends GlobalLootModifierProvider {
                                 .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(Blocks.TRIAL_SPAWNER))
                                 .when(MatchTool.toolMatches(pickaxeWithSilktouch))
                                 .when(LootItemRandomChanceCondition.randomChance(Config.DROP_CHANCE))
+                                .when(InvertedLootItemCondition.invert(MatchToolWithDynamicTag.toolMatches(ItemPredicate.Builder.item(), DynamicTags.BLACKLISTED)))
                 ).name("drop_spawner").build())
         );
     }

@@ -1,17 +1,21 @@
 package me.katanya04.minespawnersforge.config;
 
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.StringWidget;
+import net.minecraft.client.OptionInstance;
+import net.minecraft.client.Options;
+import net.minecraft.client.gui.components.*;
+import net.minecraft.client.gui.layouts.HeaderAndFooterLayout;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.options.OptionsSubScreen;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.contents.PlainTextContents;
-import net.minecraft.util.Mth;
+import net.minecraft.world.item.Item;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.gui.widget.ForgeSlider;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.*;
 
 /**
  * The mod configuration screen, accesible from the "Mods" button in the main menu.
@@ -19,70 +23,67 @@ import org.jetbrains.annotations.NotNull;
  * only, just modify the value on the config toml file.
  */
 @OnlyIn(Dist.CLIENT)
-public class ConfigScreen extends Screen {
-    //private final Screen previousScreen;
-    protected ConfigScreen() {
-        super(MutableComponent.create(PlainTextContents.LiteralContents.EMPTY));
-        //this.previousScreen = previousScreen;
+public class ConfigScreen extends OptionsSubScreen {
+    protected final OptionInstance<Double> slider;
+    protected final List<Item> pickaxes;
+    protected PickaxesList pickaxesList;
+
+    protected ConfigScreen(Screen previousScreen) {
+        super(previousScreen, null, Component.translatable("config.title"));
+        this.slider = new OptionInstance<>(
+                "config.drop_chance",
+                OptionInstance.noTooltip(),
+                ConfigScreen::percentValueOrOffLabel,
+                OptionInstance.UnitDouble.INSTANCE,
+                (double) Config.DROP_CHANCE.getFloat(),
+                Config.DROP_CHANCE::setValue
+        );
+        this.pickaxes = Config.getAllPickaxes().stream().sorted(
+                (p1, p2) -> weirdRounding(getHarvestLevel(p1) - getHarvestLevel(p2))
+                ).toList();
+    }
+
+    protected int weirdRounding(double x) {
+        return (int) (x > 0 ? Math.ceil(x) : Math.floor(x));
+    }
+
+    protected double getHarvestLevel(Item pickaxe) {
+        return (pickaxe.getDefaultInstance().get(DataComponents.TOOL) == null ?
+                1 : pickaxe.getDefaultInstance().get(DataComponents.TOOL).rules().stream()
+                .filter(r -> r.speed().isPresent()).mapToDouble(r -> r.speed().get()).max().orElse(1))
+                * (pickaxe.getDefaultInstance().get(DataComponents.MAX_DAMAGE) == null ?
+                1 : pickaxe.getDefaultInstance().get(DataComponents.MAX_DAMAGE));
+    }
+
+    private static Component percentValueOrOffLabel(Component p_335881_, double p_328979_) {
+        return p_328979_ == 0.0 ? Options.genericValueLabel(p_335881_, CommonComponents.OPTION_OFF) : percentValueLabel(p_335881_, p_328979_);
+    }
+
+    private static Component percentValueLabel(Component p_231898_, double p_231899_) {
+        return Component.translatable("options.percent_value", p_231898_, (int)(p_231899_ * 100.0));
     }
 
     @Override
-    protected void init() {
-        StringWidget titleDrop = new StringWidget(MutableComponent.create(new PlainTextContents.LiteralContents("Drop chance: ")), this.minecraft.fontFilterFishy);
-        titleDrop.setX(15);
-        titleDrop.setY(15);
-        addRenderableWidget(titleDrop);
-
-        ForgeSlider sliderDrop = new ForgeSlider(titleDrop.getX() + titleDrop.getWidth() + 15, 15, 100, 20, MutableComponent.create(new PlainTextContents.LiteralContents("")),
-                MutableComponent.create(new PlainTextContents.LiteralContents("% chance")), 0.0, 1.0, Config.DROP_CHANCE.getFloat(), 0.01, 0, true) {
-            @Override
-            public void setValue(double value) {
-                value = Mth.clamp(value, 0.0, 1.0);
-                super.setValue(value);
-                Config.DROP_CHANCE.setValue(value);
-            }
-
-            @Override
-            protected void applyValue() {
-                super.applyValue();
-                Config.DROP_CHANCE.setValue(value);
-            }
-
-            @Override
-            protected @NotNull MutableComponent createNarrationMessage() {
-                return MutableComponent.create(new PlainTextContents.LiteralContents("Drop chance: " + value * 100 + "% chance"));
-            }
-
-            @Override
-            protected void updateMessage() {
-                if (this.drawString) {
-                    this.setMessage(Component.literal("").append(this.prefix).append(String.format("%.0f", this.value * 100)).append(this.suffix));
-                } else {
-                    this.setMessage(Component.empty());
-                }
-
-            }
-        };
-        addRenderableWidget(sliderDrop);
-
-        titleDrop.setY(titleDrop.getY() + sliderDrop.getY() / 2);
-
-        Button returnButton = Button.builder(MutableComponent.create(new PlainTextContents.LiteralContents("Return")), (button) -> this.onClose()).build();
-        returnButton.setX(this.width / 2 - returnButton.getWidth() / 2);
-        returnButton.setY(this.height - returnButton.getHeight() - 15);
-        addRenderableWidget(returnButton);
-
-        super.init();
+    protected void addOptions() {
+        this.list.addBig(slider);
     }
 
     @Override
-    public void render(@NotNull GuiGraphics guiGraphics, int p_281550_, int p_282878_, float p_282465_) {
-        this.renderPanorama(guiGraphics, p_282465_);
-        super.render(guiGraphics, p_281550_, p_282878_, p_282465_);
+    protected void addContents() {
+        this.list = this.layout.addToContents(new OptionsList(this.minecraft, this.width, this) {
+            @Override
+            public void updateSize(int width, @NotNull HeaderAndFooterLayout layout) {
+                this.updateSizeAndPosition(width, ConfigScreen.this.slider.createButton(null).getHeight() + 10, layout.getHeaderHeight());
+            }
+        });
+        this.list.setHeight(slider.createButton(null).getHeight() + 10);
+        this.pickaxesList = this.layout.addToContents(new PickaxesList(this, this.minecraft));
+        this.addOptions();
     }
 
     @Override
-    public void onClose() {
-        super.onClose();
+    protected void repositionElements() {
+        super.repositionElements();
+        this.pickaxesList.updateSize(this.width, this.layout);
     }
 }

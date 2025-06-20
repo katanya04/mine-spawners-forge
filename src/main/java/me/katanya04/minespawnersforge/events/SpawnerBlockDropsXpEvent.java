@@ -1,6 +1,7 @@
 package me.katanya04.minespawnersforge.events;
 
 import me.katanya04.minespawnersforge.Mine_spawners_forge;
+import me.katanya04.minespawnersforge.tags.DynamicTags;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantments;
@@ -12,7 +13,7 @@ import net.minecraftforge.fml.common.Mod;
 
 /**
  * Event listening on block break event to see if it's a spawner, and remove the drop xp if it was
- * mined with a pickaxe enchanted with silk touch
+ * mined with a whitelisted pickaxe enchanted with silk touch
  */
 @Mod.EventBusSubscriber(modid = Mine_spawners_forge.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class SpawnerBlockDropsXpEvent {
@@ -25,7 +26,10 @@ public class SpawnerBlockDropsXpEvent {
         if (player == null)
             return;
         ItemStack tool = player.getMainHandItem();
-        if (tool.isCorrectToolForDrops(block) && tool.getEnchantments().keySet().contains(Enchantments.SILK_TOUCH.getOrThrow(event.getPlayer().level())))
+        if (tool.isCorrectToolForDrops(block) &&
+            tool.getEnchantments().keySet().contains(Enchantments.SILK_TOUCH.getOrThrow(event.getPlayer().level())) &&
+            !DynamicTags.isInTag(tool, DynamicTags.BLACKLISTED)
+        )
             event.setExpToDrop(0);
     }
 }

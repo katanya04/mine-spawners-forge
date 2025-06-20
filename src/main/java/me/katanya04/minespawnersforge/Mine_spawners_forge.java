@@ -32,7 +32,7 @@ public class Mine_spawners_forge {
         public static void onClientSetup(FMLClientSetupEvent event) {
             ModLoadingContext.get().registerExtensionPoint(
                     ConfigScreenHandler.ConfigScreenFactory.class,
-                    () -> new ConfigScreenHandler.ConfigScreenFactory((mc, prevScreen) -> new ConfigScreen(){})
+                    () -> new ConfigScreenHandler.ConfigScreenFactory((mc, prevScreen) -> new ConfigScreen(prevScreen){})
             );
         }
     }
