@@ -9,7 +9,7 @@ import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.providers.number.LootNumberProviderType;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
 import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.eventbus.api.bus.BusGroup;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 import org.jetbrains.annotations.NotNull;
@@ -23,7 +23,7 @@ public record ConfigNumericField<T extends Number>(ForgeConfigSpec.ConfigValue<T
     static DeferredRegister<LootNumberProviderType> LOOT_NUMBER_PROVIDERS =
             DeferredRegister.create(BuiltInRegistries.LOOT_NUMBER_PROVIDER_TYPE.key(), Mine_spawners_forge.MOD_ID);
 
-    public static void register(IEventBus eventBus) {
+    public static void register(BusGroup eventBus) {
         LOOT_NUMBER_PROVIDERS.register(eventBus);
     }
 

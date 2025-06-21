@@ -2,7 +2,7 @@ package me.katanya04.minespawnersforge.datagen;
 
 import me.katanya04.minespawnersforge.Mine_spawners_forge;
 import net.minecraftforge.data.event.GatherDataEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.eventbus.api.listener.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 /**

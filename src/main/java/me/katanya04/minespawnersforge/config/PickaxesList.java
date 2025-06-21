@@ -68,7 +68,7 @@ public class PickaxesList extends ContainerObjectSelectionList<PickaxesList.Entr
             this.buttons = new PickaxeButton[pickaxes.size()];
             int x = initialX, i = 0;
             for (Item pickaxe : pickaxes) {
-                buttons[i++] = new PickaxeButton(x, 0, BUTTON_SIZE, pickaxe, PickaxesList.this.minecraft.fontFilterFishy);
+                buttons[i++] = new PickaxeButton(x, 0, BUTTON_SIZE, pickaxe, PickaxesList.this.minecraft.fontFilterFishy, PickaxesList.this.configScreen);
                 x += BUTTON_SIZE + BUTTON_MARGIN;
             }
         }

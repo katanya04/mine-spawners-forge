@@ -1,4 +1,4 @@
-// 1.21.5	2025-06-19T16:24:11.9487525	Global Loot Modifiers : mine_spawners_forge
+// 1.21.6	2025-06-21T19:09:10.2347781	Global Loot Modifiers : mine_spawners_forge
 f2cd99fda4eb8d895e6f6f1d223e7b1213253bf6 data/forge/loot_modifiers/global_loot_modifiers.json
 da3b1785fce54899c09ddf7cc406995e971a2315 data/mine_spawners_forge/loot_modifiers/drop_spawner.json
 8bcc14c66a91de47535f439dcffdad382e9371fa data/mine_spawners_forge/loot_modifiers/drop_trial_spawner.json

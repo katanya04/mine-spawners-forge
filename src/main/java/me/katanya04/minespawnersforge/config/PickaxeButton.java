@@ -1,14 +1,22 @@
 package me.katanya04.minespawnersforge.config;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
+import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.contents.PlainTextContents;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.ForgeHooksClient;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -20,7 +28,8 @@ import java.util.List;
 public class PickaxeButton extends Button {
     public final Item pickaxe;
     public final Font font;
-    public PickaxeButton(int x, int y, int size, Item pickaxe, Font font) {
+    public final Screen screen;
+    public PickaxeButton(int x, int y, int size, Item pickaxe, Font font, Screen screen) {
         super(x, y, size, size, Component.empty(),
                 self -> {
                     List<String> blacklistedPickaxes = (List<String>) Config.BLACKLISTED_PICKAXES.get();
@@ -37,6 +46,7 @@ public class PickaxeButton extends Button {
         );
         this.pickaxe = pickaxe;
         this.font = font;
+        this.screen = screen;
     }
 
     @Override
@@ -46,8 +56,11 @@ public class PickaxeButton extends Button {
         int itemY = this.getY() + (this.height - 16) / 2;
         graphics.renderItem(this.pickaxe.getDefaultInstance(), itemX, itemY);
         if (this.isHovered())
-            graphics.renderTooltip(font, this.pickaxe.getDefaultInstance(), mouseX, mouseY);
-        if (Config.BLACKLISTED_PICKAXES.get().contains(pickaxe.toString()))
-            graphics.drawCenteredString(font, "X", getX(), getY(), 16711680);
+            graphics.setTooltipForNextFrame(this.pickaxe.getName(), mouseX, mouseY);
+        if (Config.BLACKLISTED_PICKAXES.get().contains(pickaxe.toString())) {
+            graphics.drawString(font,
+                    MutableComponent.create(new PlainTextContents.LiteralContents("X")).withStyle(ChatFormatting.BOLD),
+                    getX(), getY(), 0xFFFF0000);
+        }
     }
 }
