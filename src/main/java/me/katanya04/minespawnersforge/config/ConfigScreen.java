@@ -12,7 +12,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -33,7 +32,7 @@ public class ConfigScreen extends OptionsSubScreen {
         this.slider = new OptionInstance<>(
                 "config.drop_chance",
                 OptionInstance.noTooltip(),
-                ConfigScreen::percentValueOrOffLabel,
+                ConfigScreen::percentValueLabel,
                 OptionInstance.UnitDouble.INSTANCE,
                 (double) Config.DROP_CHANCE.getFloat(),
                 Config.DROP_CHANCE::setValue
@@ -53,10 +52,6 @@ public class ConfigScreen extends OptionsSubScreen {
                 .filter(r -> r.speed().isPresent()).mapToDouble(r -> r.speed().get()).max().orElse(1))
                 * (pickaxe.getDefaultInstance().get(DataComponents.MAX_DAMAGE) == null ?
                 1 : pickaxe.getDefaultInstance().get(DataComponents.MAX_DAMAGE));
-    }
-
-    private static Component percentValueOrOffLabel(Component p_335881_, double p_328979_) {
-        return p_328979_ == 0.0 ? Options.genericValueLabel(p_335881_, CommonComponents.OPTION_OFF) : percentValueLabel(p_335881_, p_328979_);
     }
 
     private static Component percentValueLabel(Component p_231898_, double p_231899_) {

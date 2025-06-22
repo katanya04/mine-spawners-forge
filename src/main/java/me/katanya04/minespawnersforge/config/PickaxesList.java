@@ -111,8 +111,8 @@ public class PickaxesList extends ContainerObjectSelectionList<PickaxesList.Entr
                 }
 
                 @Override
-                public void updateNarration(@NotNull NarrationElementOutput p_343060_) {
-                    p_343060_.add(NarratedElementType.TITLE, PickaxesList.TitleEntry.this.title);
+                public void updateNarration(@NotNull NarrationElementOutput builder) {
+                    builder.add(NarratedElementType.TITLE, PickaxesList.TitleEntry.this.title);
                 }
             });
         }

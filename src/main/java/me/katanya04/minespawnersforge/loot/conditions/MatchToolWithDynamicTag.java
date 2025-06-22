@@ -26,10 +26,10 @@ import org.jetbrains.annotations.NotNull;
  */
 public record MatchToolWithDynamicTag(Optional<ItemPredicate> predicate, TagKey<Item> dynamicTag) implements LootItemCondition {
     public static final MapCodec<MatchToolWithDynamicTag> CODEC = RecordCodecBuilder.mapCodec(
-            p_327654_ -> p_327654_.group(
+            instance -> instance.group(
                     ItemPredicate.CODEC.optionalFieldOf("predicate").forGetter(MatchToolWithDynamicTag::predicate),
                     TagKey.codec(Registries.ITEM).fieldOf("dynamicTag").forGetter(MatchToolWithDynamicTag::dynamicTag)
-            ).apply(p_327654_, MatchToolWithDynamicTag::new)
+            ).apply(instance, MatchToolWithDynamicTag::new)
     );
 
     @Override
@@ -42,13 +42,14 @@ public record MatchToolWithDynamicTag(Optional<ItemPredicate> predicate, TagKey<
         return Set.of(LootContextParams.TOOL);
     }
 
-    public boolean test(LootContext p_82000_) {
-        ItemStack itemstack = p_82000_.getOptionalParameter(LootContextParams.TOOL);
+    @Override
+    public boolean test(LootContext lootContext) {
+        ItemStack itemstack = lootContext.getOptionalParameter(LootContextParams.TOOL);
         return itemstack != null && (this.predicate.isEmpty() || this.predicate.get().test(itemstack)) &&
                 DynamicTags.isInTag(itemstack, this.dynamicTag);
     }
 
-    public static LootItemCondition.Builder toolMatches(ItemPredicate.Builder p_81998_, TagKey<Item> dynamicTag) {
-        return () -> new MatchToolWithDynamicTag(Optional.of(p_81998_.build()), dynamicTag);
+    public static LootItemCondition.Builder toolMatches(ItemPredicate.Builder predicate, TagKey<Item> dynamicTag) {
+        return () -> new MatchToolWithDynamicTag(Optional.of(predicate.build()), dynamicTag);
     }
 }

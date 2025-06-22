@@ -53,8 +53,8 @@ public class Config {
         return  stack.is(ItemTags.PICKAXES) ||
                 stack.isCorrectToolForDrops(Blocks.SPAWNER.defaultBlockState()) ||
                 (stack.get(DataComponents.TOOL) != null && stack.get(DataComponents.TOOL).rules().stream()
-                        .anyMatch(r -> (r.blocks() instanceof HolderSet.Named) &&
-                                ((HolderSet.Named<Block>) r.blocks()).key().location().equals(BlockTags.MINEABLE_WITH_PICKAXE.location()))
+                        .anyMatch(r -> (r.blocks() instanceof HolderSet.Named<Block> blocks) &&
+                                blocks.key().location().equals(BlockTags.MINEABLE_WITH_PICKAXE.location()))
                 );
     }
 }
