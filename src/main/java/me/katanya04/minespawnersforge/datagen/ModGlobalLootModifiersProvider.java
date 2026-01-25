@@ -8,7 +8,10 @@ import me.katanya04.minespawnersforge.loot.LootTableModifier;
 import me.katanya04.minespawnersforge.loot.functions.SetDataComponentFunction;
 import me.katanya04.minespawnersforge.loot.lootnbtprovider.ContextAndBlockEntityLootNbtProvider;
 import me.katanya04.minespawnersforge.tags.DynamicTags;
-import net.minecraft.advancements.critereon.*;
+import net.minecraft.advancements.criterion.DataComponentMatchers;
+import net.minecraft.advancements.criterion.EnchantmentPredicate;
+import net.minecraft.advancements.criterion.ItemPredicate;
+import net.minecraft.advancements.criterion.MinMaxBounds;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.component.predicates.DataComponentPredicates;
@@ -65,7 +68,7 @@ public class ModGlobalLootModifiersProvider extends GlobalLootModifierProvider {
         add("drop_spawner", new LootTableModifier(LootPool.lootPool().setRolls(ConstantValue.exactly(1)).add(
                     LootItem.lootTableItem(Items.SPAWNER)
                     .apply(
-                            CopyDataComponentFunction.copyData(ContextAndBlockEntityLootNbtProvider.fromBlockEntitySource(
+                            CopyDataComponentFunction.copyData(ContextAndBlockEntityLootNbtProvider.forContextBlockEntity(
                                     LootContext.BlockEntityTarget.BLOCK_ENTITY), BlockEntityType.MOB_SPAWNER)
                                     .copy("{}", "{}", CopyDataComponentFunction.MergeStrategy.REPLACE,
                                             DataComponents.BLOCK_ENTITY_DATA)
@@ -85,7 +88,7 @@ public class ModGlobalLootModifiersProvider extends GlobalLootModifierProvider {
         add("drop_trial_spawner", new LootTableModifier(LootPool.lootPool().setRolls(ConstantValue.exactly(1)).add(
                         LootItem.lootTableItem(Items.TRIAL_SPAWNER)
                                 .apply(
-                                        CopyDataComponentFunction.copyData(ContextAndBlockEntityLootNbtProvider.fromBlockEntitySource(
+                                        CopyDataComponentFunction.copyData(ContextAndBlockEntityLootNbtProvider.forContextBlockEntity(
                                                 LootContext.BlockEntityTarget.BLOCK_ENTITY), BlockEntityType.TRIAL_SPAWNER)
                                                 .copy("{}", "{}", CopyDataComponentFunction.MergeStrategy.REPLACE,
                                                         DataComponents.BLOCK_ENTITY_DATA)

@@ -44,8 +44,7 @@ public class PickaxeButton extends Button {
     }
 
     @Override
-    public void renderWidget(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        super.renderWidget(graphics, mouseX, mouseY, partialTick);
+    public void renderContents(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         int itemX = this.getX() + (this.width - 16) / 2;
         int itemY = this.getY() + (this.height - 16) / 2;
         graphics.renderItem(this.pickaxe.getDefaultInstance(), itemX, itemY);

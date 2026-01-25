@@ -56,7 +56,7 @@
               ],
               "source": {
                 "type": "mine_spawners_forge:context_and_block_entity",
-                "source": "block_entity"
+                "target": "block_entity"
               }
             },
             {

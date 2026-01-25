@@ -4,7 +4,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Item;
@@ -45,7 +45,7 @@ public class Config {
     }
 
     private static boolean isPickaxe(String name) {
-        Optional<Holder.Reference<Item>> pickaxe = BuiltInRegistries.ITEM.get(ResourceLocation.parse(name));
+        Optional<Holder.Reference<Item>> pickaxe = BuiltInRegistries.ITEM.get(Identifier.parse(name));
         return pickaxe.filter(itemReference -> isPickaxe(itemReference.get().getDefaultInstance())).isPresent();
     }
 

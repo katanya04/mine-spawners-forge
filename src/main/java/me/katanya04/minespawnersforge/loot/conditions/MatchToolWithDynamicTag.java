@@ -7,7 +7,7 @@ import java.util.Set;
 
 import me.katanya04.minespawnersforge.loot.LootRegistration;
 import me.katanya04.minespawnersforge.tags.DynamicTags;
-import net.minecraft.advancements.critereon.ItemPredicate;
+import net.minecraft.advancements.criterion.ItemPredicate;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.context.ContextKey;
