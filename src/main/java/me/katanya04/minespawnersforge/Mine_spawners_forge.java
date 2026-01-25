@@ -3,7 +3,7 @@ package me.katanya04.minespawnersforge;
 import me.katanya04.minespawnersforge.config.Config;
 import me.katanya04.minespawnersforge.config.ConfigScreen;
 import me.katanya04.minespawnersforge.config.ConfigNumericField;
-import me.katanya04.minespawnersforge.loot.ModLootModifiers;
+import me.katanya04.minespawnersforge.loot.LootRegistration;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.ConfigScreenHandler;
 import net.minecraftforge.eventbus.api.listener.SubscribeEvent;
@@ -22,7 +22,7 @@ public class Mine_spawners_forge {
 
     public Mine_spawners_forge(FMLJavaModLoadingContext context) {
         modContext = context;
-        ModLootModifiers.register(context.getModBusGroup());
+        LootRegistration.register(context.getModBusGroup());
         ConfigNumericField.register(context.getModBusGroup());
         context.registerConfig(ModConfig.Type.COMMON, Config.SPEC, "mine_spawners_forge-config.toml");
     }

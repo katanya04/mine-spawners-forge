@@ -44,6 +44,7 @@
           ],
           "functions": [
             {
+              "blockEntityType": "minecraft:trial_spawner",
               "function": "mine_spawners_forge:copy_data_component",
               "ops": [
                 {
@@ -53,12 +54,22 @@
                   "target": "{}"
                 }
               ],
-              "source": "block_entity"
+              "source": {
+                "type": "mine_spawners_forge:context_and_block_entity",
+                "source": "block_entity"
+              }
             },
             {
+              "data": {
+                "Delay": -1,
+                "id": "minecraft:trial_spawner",
+                "x": 0,
+                "y": 0,
+                "z": 0
+              },
               "dataComponentType": "minecraft:block_entity_data",
               "function": "mine_spawners_forge:set_data_component",
-              "tag": "{Delay:-1s,x:0,y:0,z:0}"
+              "mode": "merge"
             }
           ],
           "name": "minecraft:trial_spawner"

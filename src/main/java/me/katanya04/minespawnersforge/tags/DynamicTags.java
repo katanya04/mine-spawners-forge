@@ -15,7 +15,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
- * A dynamic tag, is not registered anywhere, it is just a map tag-supplier of elements
+ * A dynamic tag, it's not registered anywhere, it's just a map tag-supplier of elements
  */
 public class DynamicTags {
     private static final Map<TagKey<Item>, Supplier<Set<Item>>> DYNAMIC_TAGS = new HashMap<>();

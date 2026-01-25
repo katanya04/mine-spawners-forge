@@ -79,10 +79,10 @@ public class PickaxesList extends ContainerObjectSelectionList<PickaxesList.Entr
         }
 
         @Override
-        public void render(@NotNull GuiGraphics graphics, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float partialTick) {
+        public void renderContent(@NotNull GuiGraphics context, int mouseX, int mouseY, boolean hovered, float deltaTicks) {
             Arrays.stream(this.buttons).forEach(b -> {
-                b.setY(y);
-                b.render(graphics, mouseX, mouseY, partialTick);
+                b.setY(this.getY());
+                b.render(context, mouseX, mouseY, deltaTicks);
             });
         }
 
@@ -118,10 +118,10 @@ public class PickaxesList extends ContainerObjectSelectionList<PickaxesList.Entr
         }
 
         @Override
-        public void render(GuiGraphics graphics, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float partialTick) {
-            graphics.drawString(
+        public void renderContent(GuiGraphics context, int mouseX, int mouseY, boolean hovered, float deltaTicks) {
+            context.drawString(
                     PickaxesList.this.minecraft.font, this.title, PickaxesList.this.width / 2 - this.width / 2,
-                    y + entryHeight / 2 - PickaxesList.this.minecraft.font.lineHeight / 2, -1
+                    this.getY() + this.getHeight() / 2 - PickaxesList.this.minecraft.font.lineHeight / 2, -1, true
             );
         }
 

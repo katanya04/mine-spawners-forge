@@ -1,13 +1,17 @@
 package me.katanya04.minespawnersforge.loot.functions;
 
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import me.katanya04.minespawnersforge.loot.ModLootModifiers;
+import me.katanya04.minespawnersforge.loot.LootRegistration;
 import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.TagParser;
+import net.minecraft.nbt.Tag;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.item.component.TypedEntityData;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.functions.LootItemConditionalFunction;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunctionType;
@@ -15,38 +19,90 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
- * A LootTable function that sets NBT to a DataComponent of the target
+ * A LootTable function that sets NBT to a DataComponentType<TypedEntityData<?>> of the target
  */
 public class SetDataComponentFunction extends LootItemConditionalFunction {
-    public static final MapCodec<SetDataComponentFunction> CODEC = RecordCodecBuilder.mapCodec((p_336302_) ->
-            commonFields(p_336302_).and(TagParser.LENIENT_CODEC.fieldOf("tag").forGetter((p_328670_) -> p_328670_.tag))
-            .and(DataComponentType.CODEC.fieldOf("dataComponentType").forGetter((p_328670_) -> p_328670_.dataComponentType))
-            .apply(p_336302_, ((lootItemConditions, compoundTag, dataComponentType1) ->
-                    new SetDataComponentFunction(lootItemConditions, compoundTag, (DataComponentType<CustomData>) dataComponentType1)))
+    public static final MapCodec<SetDataComponentFunction> CODEC = RecordCodecBuilder.mapCodec((instance) ->
+            commonFields(instance)
+                    .and(DataComponentType.CODEC.fieldOf("dataComponentType").forGetter((function) -> function.dataComponentType))
+                    .and(TypedEntityData.codec(BuiltInRegistries.BLOCK_ENTITY_TYPE.byNameCodec()).fieldOf("data").forGetter(function -> function.data))
+                    .and(Mode.CODEC.fieldOf("mode").forGetter(function -> function.mode))
+                    .apply(instance, (conditions, componentType, typedEntityData, mode) ->
+                        new SetDataComponentFunction(conditions, (DataComponentType<TypedEntityData<BlockEntityType<?>>>) componentType, typedEntityData, mode))
     );
-    private final CompoundTag tag;
-    private final DataComponentType<CustomData> dataComponentType;
+    private final DataComponentType<TypedEntityData<BlockEntityType<?>>> dataComponentType;
+    private final TypedEntityData<BlockEntityType<?>> data;
+    public enum Mode implements StringRepresentable {
+        REPLACE("replace"),
+        APPEND("append"),
+        MERGE("merge");
+        public static final Codec<Mode> CODEC = StringRepresentable.fromValues(Mode::values);
+        private final String name;
+        Mode(String name) {
+            this.name = name;
+        }
+        @Override
+        public @NotNull String getSerializedName() {
+            return this.name;
+        }
+    }
+    private final Mode mode;
 
-    private SetDataComponentFunction(List<LootItemCondition> conditions, CompoundTag tag, DataComponentType<CustomData> dataComponentType) {
+    private SetDataComponentFunction(List<LootItemCondition> conditions,
+                                     DataComponentType<TypedEntityData<BlockEntityType<?>>> dataComponentType,
+                                     TypedEntityData<BlockEntityType<?>> data,
+                                     Mode mode
+    ) {
         super(conditions);
-        this.tag = tag;
         this.dataComponentType = dataComponentType;
+        this.data = data;
+        this.mode = mode;
     }
 
     @Override
     public @NotNull LootItemFunctionType<SetDataComponentFunction> getType() {
-        return ModLootModifiers.SET_DATA_COMPONENT.get();
+        return LootRegistration.SET_DATA_COMPONENT.get();
     }
 
     @Override
     public @NotNull ItemStack run(@NotNull ItemStack item, @NotNull LootContext ignored) {
-        CustomData.update(this.dataComponentType, item, (itemDataComponent) -> itemDataComponent.merge(this.tag));
+        TypedEntityData<BlockEntityType<?>> data;
+        if (this.mode == Mode.REPLACE) {
+            data = this.data;
+        } else {
+            TypedEntityData<BlockEntityType<?>> currentData = item.get(dataComponentType);
+            if (currentData == null) {
+                data = this.data;
+            } else {
+                Map<String, Tag> currentEntries = currentData.copyTagWithoutId().entrySet().stream()
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                Map<String, Tag> newEntries = this.data.copyTagWithoutId().entrySet().stream()
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                Map<String, Tag> entries;
+                if (this.mode == Mode.APPEND) {
+                    newEntries.putAll(currentEntries);
+                    entries = newEntries;
+                } else {
+                    currentEntries.putAll(newEntries);
+                    entries = currentEntries;
+                }
+                CompoundTag newData = new CompoundTag();
+                for (Map.Entry<String, Tag> entry : entries.entrySet()) {
+                    newData.put(entry.getKey(), entry.getValue());
+                }
+                data = TypedEntityData.of(this.data.type(), newData);
+            }
+        }
+        item.set(dataComponentType, data);
         return item;
     }
 
-    public static Builder<?> setDataComponent(CompoundTag tag, DataComponentType<CustomData> dataComponentType) {
-        return simpleBuilder((conditions) -> new SetDataComponentFunction(conditions, tag, dataComponentType));
+    public static Builder<?> setDataComponent(DataComponentType<TypedEntityData<BlockEntityType<?>>> dataComponentType,
+                                              TypedEntityData<BlockEntityType<?>> data, Mode mode) {
+        return simpleBuilder((conditions) -> new SetDataComponentFunction(conditions, dataComponentType, data, mode));
     }
 }

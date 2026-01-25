@@ -5,7 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Optional;
 import java.util.Set;
 
-import me.katanya04.minespawnersforge.loot.ModLootModifiers;
+import me.katanya04.minespawnersforge.loot.LootRegistration;
 import me.katanya04.minespawnersforge.tags.DynamicTags;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.core.registries.Registries;
@@ -34,7 +34,7 @@ public record MatchToolWithDynamicTag(Optional<ItemPredicate> predicate, TagKey<
 
     @Override
     public @NotNull LootItemConditionType getType() {
-        return ModLootModifiers.MATCH_TOOL_WITH_DYNAMIC_TAG.get();
+        return LootRegistration.MATCH_TOOL_WITH_DYNAMIC_TAG.get();
     }
 
     @Override

@@ -6,6 +6,7 @@ import me.katanya04.minespawnersforge.loot.conditions.MatchToolWithDynamicTag;
 import me.katanya04.minespawnersforge.loot.functions.CopyDataComponentFunction;
 import me.katanya04.minespawnersforge.loot.LootTableModifier;
 import me.katanya04.minespawnersforge.loot.functions.SetDataComponentFunction;
+import me.katanya04.minespawnersforge.loot.lootnbtprovider.ContextAndBlockEntityLootNbtProvider;
 import me.katanya04.minespawnersforge.tags.DynamicTags;
 import net.minecraft.advancements.critereon.*;
 import net.minecraft.core.HolderLookup;
@@ -18,15 +19,17 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.ShortTag;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.TypedEntityData;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.predicates.InvertedLootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
 import net.minecraft.world.level.storage.loot.predicates.MatchTool;
-import net.minecraft.world.level.storage.loot.providers.nbt.ContextNbtProvider;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraftforge.common.data.GlobalLootModifierProvider;
 import org.jetbrains.annotations.NotNull;
@@ -44,7 +47,6 @@ public class ModGlobalLootModifiersProvider extends GlobalLootModifierProvider {
 
     @Override
     protected void start(HolderLookup.@NotNull Provider registries) {
-        var items = registries.lookupOrThrow(Registries.ITEM);
         var enchantments = registries.lookupOrThrow(Registries.ENCHANTMENT);
 
         ItemPredicate.Builder pickaxeWithSilktouch = ItemPredicate.Builder.item();
@@ -63,9 +65,16 @@ public class ModGlobalLootModifiersProvider extends GlobalLootModifierProvider {
         add("drop_spawner", new LootTableModifier(LootPool.lootPool().setRolls(ConstantValue.exactly(1)).add(
                     LootItem.lootTableItem(Items.SPAWNER)
                     .apply(
-                            CopyDataComponentFunction.copyData(ContextNbtProvider.BLOCK_ENTITY)
-                                    .copy("{}", "{}", CopyDataComponentFunction.MergeStrategy.REPLACE, DataComponents.BLOCK_ENTITY_DATA))
-                    .apply(SetDataComponentFunction.setDataComponent(removeDelayAndCoords, DataComponents.BLOCK_ENTITY_DATA))
+                            CopyDataComponentFunction.copyData(ContextAndBlockEntityLootNbtProvider.fromBlockEntitySource(
+                                    LootContext.BlockEntityTarget.BLOCK_ENTITY), BlockEntityType.MOB_SPAWNER)
+                                    .copy("{}", "{}", CopyDataComponentFunction.MergeStrategy.REPLACE,
+                                            DataComponents.BLOCK_ENTITY_DATA)
+                    )
+                    .apply(
+                            SetDataComponentFunction.setDataComponent(DataComponents.BLOCK_ENTITY_DATA,
+                                    TypedEntityData.of(BlockEntityType.MOB_SPAWNER, removeDelayAndCoords),
+                                    SetDataComponentFunction.Mode.MERGE)
+                    )
                     .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(Blocks.SPAWNER))
                     .when(MatchTool.toolMatches(pickaxeWithSilktouch))
                     .when(LootItemRandomChanceCondition.randomChance(Config.DROP_CHANCE))
@@ -76,9 +85,16 @@ public class ModGlobalLootModifiersProvider extends GlobalLootModifierProvider {
         add("drop_trial_spawner", new LootTableModifier(LootPool.lootPool().setRolls(ConstantValue.exactly(1)).add(
                         LootItem.lootTableItem(Items.TRIAL_SPAWNER)
                                 .apply(
-                                        CopyDataComponentFunction.copyData(ContextNbtProvider.BLOCK_ENTITY)
-                                                .copy("{}", "{}", CopyDataComponentFunction.MergeStrategy.REPLACE, DataComponents.BLOCK_ENTITY_DATA))
-                                .apply(SetDataComponentFunction.setDataComponent(removeDelayAndCoords, DataComponents.BLOCK_ENTITY_DATA))
+                                        CopyDataComponentFunction.copyData(ContextAndBlockEntityLootNbtProvider.fromBlockEntitySource(
+                                                LootContext.BlockEntityTarget.BLOCK_ENTITY), BlockEntityType.TRIAL_SPAWNER)
+                                                .copy("{}", "{}", CopyDataComponentFunction.MergeStrategy.REPLACE,
+                                                        DataComponents.BLOCK_ENTITY_DATA)
+                                )
+                                .apply(
+                                        SetDataComponentFunction.setDataComponent(DataComponents.BLOCK_ENTITY_DATA,
+                                                TypedEntityData.of(BlockEntityType.TRIAL_SPAWNER, removeDelayAndCoords),
+                                                SetDataComponentFunction.Mode.MERGE)
+                                )
                                 .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(Blocks.TRIAL_SPAWNER))
                                 .when(MatchTool.toolMatches(pickaxeWithSilktouch))
                                 .when(LootItemRandomChanceCondition.randomChance(Config.DROP_CHANCE))
